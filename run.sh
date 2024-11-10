@@ -7,4 +7,4 @@ pip3 install loguru
 pip3 install asyncio
 pip3 install fake_useragent
 clear
-python3 teneo.py
+python3 blockmesh.py
