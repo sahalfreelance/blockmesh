@@ -4,6 +4,8 @@ from fake_useragent import UserAgent
 from loguru import logger
 import os
 import requests
+import time
+
 os.system("clear")
 banner = """\033[36m
 ██████╗ ██╗      ██████╗  ██████╗██╗  ██╗███╗   ███╗███████╗███████╗██╗  ██╗
