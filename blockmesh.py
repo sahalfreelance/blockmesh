@@ -6,7 +6,7 @@ from fake_useragent import UserAgent
 from loguru import logger
 import os
 
-os.system("clear")
+os.system("cls")
 banner = """\033[36m
 ██████╗ ██╗      ██████╗  ██████╗██╗  ██╗███╗   ███╗███████╗███████╗██╗  ██╗
 ██╔══██╗██║     ██╔═══██╗██╔════╝██║ ██╔╝████╗ ████║██╔════╝██╔════╝██║  ██║
@@ -21,7 +21,7 @@ banner = """\033[36m
 print(banner)
 mail = input("Masukkan Email : ")
 pwd = input("Masukkan Password : ")
-os.system("clear")
+os.system("cls")
 print(banner)
 #url_report = f"https://app.blockmesh.xyz/api/report_uptime?email={email}&api_token={api_token}&ip={ip}"
 #url_submit_task = f"https://app.blockmesh.xyz/api/report_uptime?email={email}&api_token={api_token}&ip={ip}"
@@ -50,11 +50,11 @@ def login(email, password, url):
         logger.info("Login Successfull!")
         time.sleep(1)
         use_websocket()
-        time.sleep(1)
-        ws_percent()
-        time.sleep(1)
-        poll_interval()
-        time.sleep(1)
+        #time.sleep(1)
+        #ws_percent()
+        #time.sleep(1)
+        #poll_interval()
+        #time.sleep(1)
         while True:
             get_task()
             time.sleep(60)
@@ -68,8 +68,11 @@ def use_websocket():
     response = requests.get(url["websocket"], headers=header)
     if response.json() == True:
         logger.info("Use Websocket Success!")
+        time.sleep(30)
+        poll_interval()
     else:
-        logger.error("Use Websocket Failed!")
+        logger.error("Use Websocket Failed! Retrying in 30 seconds")
+        return use_websocket()
 def ws_percent():
     header = {
         "accept": "application/json",
@@ -88,10 +91,31 @@ def poll_interval():
     response = requests.get(url["poll_interval"], headers=headers)
     if response.status_code == 200:
         poll_int = str(response.json())
-        logger.info(f"Set polling interval {poll_int}")
+        logger.info(f"Poll response True")
+        try:
+            time.sleep(30)
+            get_task()
+        except:
+            pass
     else:
-        logger.debug("Failed getting polling interval, set to dafault!")
+        logger.debug("Failed getting polling interval, set to default!")
         pass
+def report_uptime():
+    headers = {
+        "accept": "application/json",
+        "User-Agent": user_agent
+    }
+    ip = requests.get('https://api.ipify.org').content.decode('utf8')
+    data = {
+        "email": mail,
+        "api_token": api_token,
+        "ip": ip
+    }
+    response = requests.post(f"https://app.blockmesh.xyz/api/report_uptime?email={mail}&api_token={api_token}&ip={ip}", headers=headers, json=data)
+    if response.status_code == 200:
+        logger.info(f"Uptime submit success!")
+    else:
+        logger.error("Failed submit uptime!")
 def get_task():
     headers = {
         "accept": "application/json",
@@ -107,8 +131,9 @@ def get_task():
             task_data = response.json()
             task_id = task_data["id"]
             logger.info(f"Task ID {task_id}")
-            time.sleep(1)
+            time.sleep(10)
             report_uptime()
+            time.sleep(30)
             def submit_task():
                 headers = {
                     "accept": "application/json",
@@ -127,33 +152,20 @@ def get_task():
                 if response.status_code == 200:
                     logger.info(f"Task ID : {task_id} submit successfull!")
                 else:
-                    logger.error(f"Task ID : {task_id} submit failed")
-                    pass
+                    logger.error(f"Task ID : {task_id} submit failed! Retrying in 30 seconds")
+                    time.sleep(30)
+                    return get_task()
             submit_task()
         except:
-            logger.error("Task ID not ready yet, Waiting for 120 seconds...")
-            time.sleep(120)
+            logger.error("Task ID not ready yet, Waiting for 30 seconds...")
+            time.sleep(30)
             pass
+    elif response.status_code == 429:
+        logger.debug("Too many requests, waiting for 30 seconds")
+        time.sleep(30)
+        return poll_interval()
     else:
         logger.error("Failed getting task id")
-    
-def report_uptime():
-    headers = {
-        "accept": "application/json",
-        "User-Agent": user_agent
-    }
-    ip = requests.get('https://api.ipify.org').content.decode('utf8')
-    data = {
-        "email": mail,
-        "api_token": api_token,
-        "ip": ip
-    }
-    response = requests.post(f"https://app.blockmesh.xyz/api/report_uptime?email={mail}&api_token={api_token}&ip={ip}", headers=headers, json=data)
-    if response.status_code == 200:
-        logger.info(f"Uptime submit success!")
-    else:
-        logger.error("Failed submit uptime!")
-
 
 async def main():
     login(mail, pwd, url["login"])
