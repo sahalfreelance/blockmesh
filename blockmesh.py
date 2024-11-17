@@ -3,7 +3,7 @@ import asyncio
 from fake_useragent import UserAgent
 from loguru import logger
 import os
-
+import requests
 os.system("clear")
 banner = """\033[36m
 ██████╗ ██╗      ██████╗  ██████╗██╗  ██╗███╗   ███╗███████╗███████╗██╗  ██╗
