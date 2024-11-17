@@ -6,7 +6,7 @@ from fake_useragent import UserAgent
 from loguru import logger
 import os
 
-os.system("cls")
+os.system("clear")
 banner = """\033[36m
 ██████╗ ██╗      ██████╗  ██████╗██╗  ██╗███╗   ███╗███████╗███████╗██╗  ██╗
 ██╔══██╗██║     ██╔═══██╗██╔════╝██║ ██╔╝████╗ ████║██╔════╝██╔════╝██║  ██║
@@ -21,7 +21,7 @@ banner = """\033[36m
 print(banner)
 mail = input("Masukkan Email : ")
 pwd = input("Masukkan Password : ")
-os.system("cls")
+os.system("clear")
 print(banner)
 #url_report = f"https://app.blockmesh.xyz/api/report_uptime?email={email}&api_token={api_token}&ip={ip}"
 #url_submit_task = f"https://app.blockmesh.xyz/api/report_uptime?email={email}&api_token={api_token}&ip={ip}"
